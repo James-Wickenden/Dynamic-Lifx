@@ -1,2 +1,3 @@
 api_key.txt
 .ipynb_checkpoints*
+server/node_modules/*
