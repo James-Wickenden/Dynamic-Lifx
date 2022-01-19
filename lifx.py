@@ -1,5 +1,6 @@
 import requests
 import math
+import logging
 
 f = open("api_key.txt", "r")
 token = f.read()
@@ -8,6 +9,7 @@ headers = {
     "Authorization": "Bearer %s" % token,
 }
 
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 def validate_int(test_val, lower_bound=-math.inf, upper_bound=math.inf):
     if upper_bound < lower_bound: raise ValueError('Lower bound greater than upper bound.')
@@ -29,8 +31,8 @@ def update_light_power(is_on):
     }
 
     response = requests.put('https://api.lifx.com/v1/lights/all/state', data=payload, headers=headers)
-    print("updating power setting to", is_on)
-    print(response,response.json())
+    logging.info(f"updating power setting to {is_on}")
+    logging.info(response,response.json())
     return response
 
 
@@ -58,8 +60,8 @@ def cycle_states():
     }
     
     response = requests.post('https://api.lifx.com/v1/lights/all/cycle', data=payload, headers=headers)
-    print("cycling next state...")
-    print(response,response.json())
+    logging.info("cycling next state...")
+    logging.info(f"{response} {response.json()}")
     return response
 
 
@@ -74,8 +76,8 @@ def update_temperature(temperature):
     }
 
     response = requests.put('https://api.lifx.com/v1/lights/all/state', data=payload, headers=headers)
-    print("updating temperature...")
-    print(response,response.json())
+    logging.info(f"updating temperature to {temperature}")
+    logging.info(f"{response} {response.json()}")
     return response
 
 
@@ -93,15 +95,16 @@ def update_colour(rgb_hex, brightness, duration):
         "infrared": 0
     }
     response = requests.put('https://api.lifx.com/v1/lights/all/state', data=payload, headers=headers)
-    print("updating colour...")
-    print(response,response.json())
+    logging.info(f"updating colour to {rgb_hex} {brightness} {duration}")
+    logging.info(f"{response} {response.json()}")
     return response
 
 
 def main():
     #update_light_power(True)
-    update_colour("pink", 1.0, 1.0)
-
+    #update_colour("pink", 1.0, 1.0)
+    update_temperature(9000)
+    
     
 if __name__ == "__main__":
     main()
