@@ -17,52 +17,47 @@ app.get('/', (req, res) => {
     });
 */
 
-var token = "empty";
-try {
-    const data = fs.readFileSync('api_key.txt', 'utf8');
-    token = data;
-} catch (err) {
-    console.error(err);
+// Given an object and some optional numerical bounds, check it is a number and that it falls between those bounds
+function validate_number(number, lowerBound=-Infinity, upperBound=Infinity) {
+    if (isNaN(number)) throw Error(number + ' is not numeric');
+    if (number < lowerBound || number > upperBound) throw Error(number + ' outside given boundaries ' + lowerBound + ', ' + upperBound);
+    return true;
 }
 
-/*
-def update_light_power(is_on):
-    # is_on: Boolean controlling light power.
-    # a light set to 'off' will not emit light regardless of power, but can still receive updates
-    payload = {
-        "power": {True:"on", False:"off"}.get(is_on, "off")
+// Reads ands parses the LIFX API token from a text file
+function get_token() {
+    var token = "empty";
+    try {
+        const data = fs.readFileSync('api_key.txt', 'utf8');
+        token = data;
+    } catch (err) {
+        console.error(err);
     }
+    return token;
+};
 
-    response = requests.put('https://api.lifx.com/v1/lights/all/state', data=payload, headers=headers)
-    logging.info(f"updating power setting to {is_on}")
-    logging.info(response,response.json())
-    return response
-*/
+// Generates a request header with the parameters
+function get_request_header(method, uri, token, payload) {
+    return {
+        method: method,
+        uri: uri,
+        auth:{bearer:token},
+        json:payload
+    };
+};
 
+// Sets the light's on/off state to a given value
 function update_light_power(is_on) {
     // is_on: Boolean controlling light power.
     // a light set to 'off' will not emit light regardless of power, but can still receive updates  
-    
-    var payload_str = "";
-    if (is_on) {
-        payload_str = "on";
-    }
-    else {
-        payload_str = "off";
-    }
-    var auth = {
-        'bearer': token
-    };
+    var payload_str = "off";
+    if (is_on) payload_str = "on";
+
     var payload = {
         "power": payload_str
     };
 
-    request({
-        method: 'PUT',
-        uri: `https://api.lifx.com/v1/lights/all/state`,
-        auth:{bearer:token},
-        json:payload
-    },
+    request(get_request_header('PUT', 'https://api.lifx.com/v1/lights/all/state', token, payload),
     (error, response, body) => {
         if (error) {
           console.error(error);
@@ -73,4 +68,31 @@ function update_light_power(is_on) {
 
 };
 
-update_light_power(false);
+// Sets the light's colour and brightness to a given value over a given period
+function update_colour(rgb_hex, brightness, duration) {
+    // set a state. format: hue, saturation, and brightness
+    // duration: transition time in seconds
+    // brightness: light brightness from 0..1
+    validate_number(brightness, 0, 1);
+    validate_number(duration, 0, 10);
+
+    var payload = {
+        "color": rgb_hex,
+        "brightness": brightness,
+        "duration": duration,
+        "infrared": 0
+    };
+    request(get_request_header('PUT', 'https://api.lifx.com/v1/lights/all/state', token, payload),
+    (error, response, body) => {
+        if (error) {
+          console.error(error);
+        } else {
+          console.log(body);
+        }
+    });
+};
+
+const token = get_token();
+const auth = { 'bearer': token };
+//update_light_power(true);
+update_colour('#000000', 1.0, 1.0);
