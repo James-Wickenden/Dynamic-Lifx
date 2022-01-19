@@ -1,4 +1,5 @@
 import requests
+import math
 
 f = open("api_key.txt", "r")
 token = f.read()
@@ -6,6 +7,18 @@ token = f.read()
 headers = {
     "Authorization": "Bearer %s" % token,
 }
+
+
+def validate_int(test_val, lower_bound=-math.inf, upper_bound=math.inf):
+    if upper_bound < lower_bound: raise ValueError('Lower bound greater than upper bound.')
+    try:
+        temp = int(test_val)
+    except:
+        raise ValueError('Value was string, not numeric!')
+    
+    if (test_val > upper_bound) or (test_val < lower_bound):
+        raise ValueError('Value outside valid bounds')
+    return True
 
 
 def update_light_power(is_on):
@@ -53,6 +66,9 @@ def cycle_states():
 def update_temperature(temperature):
     # set temperature, given in kelvin.
     # doing so sets saturation to 0.0, effectively clearing any colour values
+    # valid values are between 1500 and 9000
+    validate_int(temperature, 1500, 9000)
+    
     payload = {
         "color": f"kelvin:{temperature}"
     }
@@ -67,6 +83,8 @@ def update_colour(rgb_hex, brightness, duration):
     # set a state. format: hue, saturation, and brightness
     # duration: transition time in seconds
     # brightness: light brightness from 0..1
+    validate_int(brightness, 0, 1)
+    validate_int(duration, 0, 10)
     
     payload = {
         "color": rgb_hex,
@@ -80,5 +98,10 @@ def update_colour(rgb_hex, brightness, duration):
     return response
 
 
-update_light_power(True)
-update_colour("pink", 1.0, 0.5)
+def main():
+    #update_light_power(True)
+    update_colour("pink", 1.0, 1.0)
+
+    
+if __name__ == "__main__":
+    main()
