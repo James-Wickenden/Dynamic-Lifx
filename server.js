@@ -96,6 +96,7 @@ function update_colour(rgb_hex, brightness, duration) {
     request(get_request_header('PUT', 'https://api.lifx.com/v1/lights/all/state', token, payload), receiveRequest);
 };
 
+
 const token = get_token();
 //update_light_power(true);
 //update_colour('#000000', 1.0, 1.0);
@@ -107,8 +108,9 @@ function setup_socket_io() {
         socket.on('disconnect', () => {
             console.log(socket.id);
         });
-        socket.on('rbg', (hex) => {
-            console.log(hex);
+        socket.on('rgb', (data) => {
+            console.log(data);
+            update_colour(data, 1.0, 1.0)
         });
     });
 };
