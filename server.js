@@ -1,21 +1,33 @@
 "use strict";
 
-const fs = require('fs')
-const https = require('https')
 const express = require('express');
+const app = express();
+
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
+
+const fs = require('fs')
 const request = require('request');
 const path = require('path');
 
-const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Sets up the express server
-app.listen(PORT, () => {
-        console.log(`Running at http://localhost:${PORT}`)
-    });
-app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, '/public/index.html'));
-    });
+setup_socket_io();
+setup_express();
+
+
+http.listen(PORT, () => {
+    console.log(`Listening on port ${PORT}`);
+});
+
+
+function setup_express() {
+    // Sets up the express server
+    app.use(express.static(path.join(__dirname, 'public')))
+    app.get('/', (req, res) => {
+            res.sendFile(path.join(__dirname, '/public/index.html'));
+        });
+};
 
 
 // Given an object and some optional numerical bounds, check it is a number and that it falls between those bounds
@@ -87,3 +99,16 @@ function update_colour(rgb_hex, brightness, duration) {
 const token = get_token();
 //update_light_power(true);
 //update_colour('#000000', 1.0, 1.0);
+
+// Sets up the socket.io events and handlers
+function setup_socket_io() {
+    io.on('connection', (socket) => {
+        console.log('a user connected');
+        socket.on('disconnect', () => {
+            console.log(socket.id);
+        });
+        socket.on('rbg', (hex) => {
+            console.log(hex);
+        });
+    });
+};

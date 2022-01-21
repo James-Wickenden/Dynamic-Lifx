@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<html lang="en-GB">
   <head>
     <meta charset="UTF-8"/>
-    <link rel="stylesheet" type="text/css" href="/resources/css/global_style.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
 
-    <script src="/resources/scripts/login_submitted.js" defer="defer"></script>
-    <title>mamo</title>
+        <!-- Starts a clientside socket connection with handlers -->
+        <script src="/socket.io/socket.io.js"></script>
+        <script type= "text/javascript" src='resources/scripts/rgb_emittor.js'></script>
+        <title>mamo</title>
   </head>
   <body>
     <h1>TODO: Rate limit users with socket</h1>
@@ -16,5 +16,5 @@
   <input id="but_red" type="submit" value="Red"></input>
   <input id="but_grn" type="submit" value="Green"></input>
   <input id="but_blu" type="submit" value="Blue"></input>
-  </body>
+</body>
 </html>
