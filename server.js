@@ -80,7 +80,7 @@ function update_light_power(is_on) {
 };
 
 // Sets the light's colour and brightness to a given value over a given period
-function update_colour(rgb_hex, brightness, duration) {
+function update_colour(api_key, rgb_hex, brightness, duration) {
     // set a state. format: hue, saturation, and brightness
     // duration: transition time in seconds
     // brightness: light brightness from 0..1
@@ -93,7 +93,7 @@ function update_colour(rgb_hex, brightness, duration) {
         "duration": duration,
         "infrared": 0
     };
-    request(get_request_header('PUT', 'https://api.lifx.com/v1/lights/all/state', token, payload), receiveRequest);
+    request(get_request_header('PUT', 'https://api.lifx.com/v1/lights/all/state', api_key, payload), receiveRequest);
 };
 
 
@@ -110,7 +110,7 @@ function setup_socket_io() {
         });
         socket.on('rgb', (data) => {
             console.log(data);
-            update_colour(data, 1.0, 1.0)
+            update_colour(data[1], data[0], 1.0, 1.0)
         });
     });
 };

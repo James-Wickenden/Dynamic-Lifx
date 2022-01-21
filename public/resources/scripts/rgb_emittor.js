@@ -15,7 +15,9 @@ function setup_socket_editor() {
 
 
 function request_colour(rgb) {
-    socket.emit('rgb', rgb);
+    console.log("Requesting colour change to " + rgb);
+    var api_key = window.prompt("Enter API key","not_given");
+    socket.emit('rgb', [rgb,api_key]);
 };
 
 
