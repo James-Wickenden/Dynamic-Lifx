@@ -8,6 +8,13 @@
         <script src="/socket.io/socket.io.js"></script>
 
         <script defer type= "text/javascript" src='resources/scripts/rgb_emittor.js'></script>
+        <script>
+          if (!localStorage.getItem('username')) {
+            var username;
+            while (!username) username = prompt("Enter your name:");
+            localStorage.setItem('username', username);
+          }
+        </script>
 
         <!-- Sets up and configures colour picker -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reinvented-color-wheel@0.4.0/css/reinvented-color-wheel.min.css">
@@ -15,8 +22,6 @@
         <script defer type= "text/javascript" src='resources/scripts/colourwheel_config.js'></script>
   </head>
   <body>
-    <h1>TODO: Rate limit users with socket</h1>
-
     <div id='colour_picker_container'></div>
     <div><button onclick="request_colour()">babababa</button></div>
   </body>
