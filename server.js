@@ -25,17 +25,13 @@ http.listen(PORT, () => {
 
 // create a file if it doesn't exist
 function create_if_not_exists(filename, content) {
-    try {
-        if (!fs.existsSync(filename)) {
-          fs.writeFile(filename, content, err => {
+    if (!fs.existsSync(filename)) {
+        fs.writeFile(filename, content, err => {
             if (err) {
                 log('ERROR', err);
             }
         });
-        }
-      } catch(err) {
-        log('ERROR', err);
-      }
+    }
 };
 
 // ensure the database file exists, as well as a logging file
@@ -50,9 +46,7 @@ function log(level, msg) {
     var now = new Date(Date.now()).toString();
     var log_str = level + ' ' + now + ' ' + msg + '\n';
 
-    fs.appendFile('out.log', log_str, function (err) {
-        log('ERROR', err);
-      });
+    fs.appendFile('out.log', log_str, function (err) {});
 };
 
 
@@ -79,10 +73,10 @@ function setup_socket_io() {
         //    console.log(socket.id + ' disconnected');
         //});
         socket.on('colourChangeRequest', (data) => {
-            log('INFO', 'request by ' + socket.id + ': ' + data.toString());
+            log('INFO', 'request by ' + socket.id + ': ' + JSON.stringify(data));
             var response = requestColourUpdate(socket.id, data['username'], data['rgb']);
             if (response) {
-                db[data['username']].push([ Date.now(), socket.id, data['rgb'] ]);
+                db[data['username']].push([ Date.now(),  new Date(Date.now()).toString(), socket.id, data['rgb'] ]);
                 rewrite_DB();
                 update_colour(data['rgb'], 1.0, 1.0);
             }
@@ -94,22 +88,8 @@ function setup_socket_io() {
 
 // read a file and return the text
 function readFile(filename) {
-    try {
-        const data = fs.readFileSync(filename, 'utf8');
-        return data;
-    } catch (err) {
-        log('ERROR', error);
-    }
-};
-
-
-// write to a filename
-function writeFile(filename, content) {
-    try {
-        fs.writeFileSync(filename, content)
-      } catch (err) {
-        log('ERROR', error);
-      }
+    const data = fs.readFileSync(filename, 'utf8');
+    return data;
 };
 
 
@@ -122,7 +102,7 @@ function reload_DB() {
 
 // Update the DB and rewrite it to the JSON file.
 function rewrite_DB() {
-    writeFile('db.json', JSON.stringify(db));
+    fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
 };
 
 
@@ -139,7 +119,7 @@ function receiveRequest(error, response, body) {
     if (error) {
         log('ERROR', error);
       } else {
-        log('INFO', body);
+        log('INFO', JSON.stringify(body));
       }
 };
 
@@ -202,7 +182,7 @@ function requestColourUpdate(socket_id, username, rgb) {
         return true;
     }
     else {
-        var userlogs = logs[username];
+        var userlogs = db[username];
         var now = Date.now();
         if (now - userlogs[userlogs.length-1][0] < 8000) {
             log('WARNING', socket_id + ': ' + username + " tried to change colour too quickly, rejected: " + rgb);

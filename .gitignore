@@ -1,3 +1,6 @@
 api_key.txt
 .ipynb_checkpoints*
 node_modules/*
+
+db.json
+out.log
