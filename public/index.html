@@ -2,44 +2,22 @@
 <html lang="en-GB">
   <head>
     <meta charset="UTF-8"/>
+    <title>James LIFX Light</title>
 
         <!-- Starts a clientside socket connection with handlers -->
         <script src="/socket.io/socket.io.js"></script>
 
-        <script type= "text/javascript" src='resources/scripts/rgb_emittor.js'></script>
+        <script defer type= "text/javascript" src='resources/scripts/rgb_emittor.js'></script>
 
         <!-- Sets up and configures colour picker -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reinvented-color-wheel@0.4.0/css/reinvented-color-wheel.min.css">
-        <script type="module">
-          import ReinventedColorWheel from "https://cdn.jsdelivr.net/npm/reinvented-color-wheel@0.4.0/es/reinvented-color-wheel.bundle.min.js";
-        </script>
-
-        <script src='resources/scripts/jscolor.js'></script>
-        <script>
-          // let's define custom preset
-          jscolor.presets.paletted = {
-            format: 'hex',
-            alphaChannel: false,
-            backgroundColor: '#444',
-            palette: '#fff #f55525 #ffe438 #88dd20 #22e0cd #269aff #bb1cd4',
-            paletteCols: 8
-          }
-        </script>
-        <title>mamo</title>
+        <script defer src="https://cdn.jsdelivr.net/npm/reinvented-color-wheel@0.4.0"></script>
+        <script defer type= "text/javascript" src='resources/scripts/colourwheel_config.js'></script>
   </head>
   <body>
     <h1>TODO: Rate limit users with socket</h1>
-    <h2 style='color: #555;'>aAaAaAaAaAa</h2>
-	<a href="https://twitter.com/adrunkenmammoth">Click here!</a>
 
-  <!--
-  <input id="but_red" type="submit" value="Red" onclick="request_colour('red')"></input>
-  <input id="but_grn" type="submit" value="Green" onclick="request_colour('green')"></input>
-  <input id="but_blu" type="submit" value="Blue" onclick="request_colour('blue')"></input>  
-  -->
-
-  Color: <input value="#fff" data-jscolor="{preset: 'large thick paletted'}" alphaChannel="false" id='rgb_picker' style=';'>
-
-  <p>NONONONONOPNO a</p>
-</body>
+    <div id='colour_picker_container'></div>
+    <div><button onclick="request_colour()">babababa</button></div>
+  </body>
 </html>
