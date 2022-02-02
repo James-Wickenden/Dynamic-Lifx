@@ -1,0 +1,52 @@
+/* button CSS taken from https://fdossena.com/?p=html5cool/buttons/i.frag */
+
+body {
+    background-color: #777;
+}
+
+#updatecolour {
+    cursor: pointer;
+    color:#FFF;
+}
+
+#updatestatus {
+    color:#FFF;
+    background-color: green;
+}
+
+#panel {
+    display: flex;
+    flex-direction: row;
+}
+
+.item {
+    order: 0;
+    align-self: center;
+    margin: 5%;
+}
+
+a.updator{
+    display:inline-block;
+    padding:0.35em 1.2em;
+    border:0.1em solid #FFFFFF;
+    margin:0 0.3em 0.3em 0;
+    border-radius:0.12em;
+    box-sizing: border-box;
+    text-decoration:none;
+    font-family:'Roboto',sans-serif;
+    font-weight:300;
+    text-align:center;
+    transition: all 0.4s;
+}
+
+#updatecolour:hover{
+    color:#000000;
+    background-color:#FFFFFF;
+}
+
+@media all and (max-width:30em){
+    a.updator{
+    display:block;
+    margin:0.4em auto;
+    }
+}

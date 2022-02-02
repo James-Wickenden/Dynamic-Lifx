@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8"/>
     <title>James LIFX Light</title>
+    <link rel="stylesheet" href='resources/css/main.css'>
 
         <!-- Starts a clientside socket connection with handlers -->
         <script src="/socket.io/socket.io.js"></script>
@@ -22,7 +23,14 @@
         <script defer type= "text/javascript" src='resources/scripts/colourwheel_config.js'></script>
   </head>
   <body>
-    <div id='colour_picker_container'></div>
-    <div><button onclick="request_colour()">babababa</button></div>
+    <h1>James LIFX Colour Wheel</h1>
+    <a style="font-size: larger;" href=https://github.com/James-Wickenden/Dynamic-Lifx>https://github.com/James-Wickenden/Dynamic-Lifx</a>
+    <div id='panel'>
+      <div class='item' id='colour_picker_container'></div>
+      <div class='item'>
+        <a class='updator' id='updatecolour' onclick="request_colour()">Update Colour!</a><br>
+        <a class='updator' id='updatestatus' onclick="">Ready!</a><br>
+      </div>
+    </div>
   </body>
 </html>

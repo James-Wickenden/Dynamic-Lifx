@@ -103,6 +103,7 @@ function update_colour(rgb_hex, brightness, duration) {
 
 // todo: rework logging, pull it out of a true/false returning function!
 function requestColourUpdate(username, rgb) {
+    if (!username) return false;
     if (!logs[username]) {
         logs[username] = [[ Date.now(), rgb ]];
         return true;
