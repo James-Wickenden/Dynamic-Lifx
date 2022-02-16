@@ -5,16 +5,32 @@ var socket;
 // Starts a clienside socket connection and sets up the handlers for receiving from the server
 function setup_socket_editor() {
     socket = io();
+    socket.emit('userRequest', {'username': localStorage.getItem('username')});
+    localStorage.setItem('lastClicked', Date.now().toString());
     // Catches messages from the server containing trees, and unpacks them
     socket.on('colourChangeResponse', function (response) {
         var status = document.getElementById('updatestatus');
-        if (response == true) {
+        localStorage.setItem('otc', response['new_otc']);
+        if (response['res'] == true) {
             status.style.backgroundColor = 'green';
             status.innerText = 'Success!';
         }
         else {
             status.style.backgroundColor = 'red';
             status.innerText = 'Failed.';
+        }
+    });
+
+    socket.on('userRequestResponse', function (response) {
+        var status = document.getElementById('updatestatus');
+        if (response['res'] == true) {
+            localStorage.setItem('otc', response['new_otc']);
+            status.style.backgroundColor = 'blue';
+            status.innerText = 'Initialised!';
+        }
+        else {
+            status.style.backgroundColor = 'red';
+            status.innerText = 'User setup failed. Refresh the page.';
         }
     });
 };
@@ -47,7 +63,8 @@ function request_colour() {
 
     var rgb = colorWheel.hex;
     var username = localStorage.getItem('username');
-    var colourChangeRequestData = { 'rgb': rgb, 'username': username };
+    var otc = localStorage.getItem('otc');
+    var colourChangeRequestData = { 'rgb': rgb, 'username': username, 'otc': otc };
 
     //var api_key = window.prompt("Enter API key","not_given");
     socket.emit('colourChangeRequest', colourChangeRequestData);

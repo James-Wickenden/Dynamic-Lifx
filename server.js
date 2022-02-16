@@ -9,6 +9,7 @@ const io = require('socket.io')(http);
 const fs = require('fs')
 const request = require('request');
 const path = require('path');
+const crypto = require('crypto');
 
 const PORT = process.env.PORT || 5000;
 
@@ -75,7 +76,11 @@ function setup_express() {
 // log it if the username isn't there.
 function reset_OTC(username) {
     if (!db_OTC[username]) log('WARNING', username + ' not in OTC dict');
-    
+    var new_otc = crypto.randomBytes(8).toString("hex");
+    db_OTC[username] = new_otc;
+    log('INFO', 'generating new otc for ' + username);
+    rewrite_DB('db_OTC.json', db_OTC);
+    return new_otc;
 };
 
 
@@ -86,15 +91,27 @@ function setup_socket_io() {
         //    console.log(socket.id + ' disconnected');
         //});
         socket.on('colourChangeRequest', (data) => {
-            log('INFO', 'request by ' + socket.id + ': ' + JSON.stringify(data));
+            log('INFO', 'colourChangeRequest by ' + socket.id + ': ' + JSON.stringify(data));
             var response = requestColourUpdate(socket.id, data['username'], data['rgb'], data['otc']);
             if (response) {
                 db[data['username']].push([ Date.now(),  new Date(Date.now()).toString(), socket.id, data['rgb'] ]);
-                rewrite_DB();
+                rewrite_DB('db.json', db);
                 update_colour(data['rgb'], 1.0, 1.0);
             }
-            reset_OTC(data['username']);
-            io.to(socket.id).emit('colourChangeResponse', response);
+            var new_otc = reset_OTC(data['username']);
+            io.to(socket.id).emit('colourChangeResponse', {'res': response, 'new_otc': new_otc});
+        });
+
+        socket.on('userRequest', (data) => {
+            log('INFO', 'userRequest by ' + socket.id + ': ' + JSON.stringify(data));
+            db = reload_DB('db.json');
+            db_OTC = reload_DB('db_OTC.json');
+
+            db[data['username']] = [[ Date.now(),  new Date(Date.now()).toString(), socket.id, 'INIT' ]];
+            rewrite_DB('db.json', db);
+            var new_otc = reset_OTC(data['username']);
+
+            io.to(socket.id).emit('userRequestResponse', {'res': true, 'new_otc': new_otc});
         });
     });
 };
@@ -114,9 +131,9 @@ function reload_DB(db_name) {
 };
 
 
-// Update the DB and rewrite it to the JSON file.
-function rewrite_DB() {
-    fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
+// Update a DB and rewrite it to the JSON file.
+function rewrite_DB(db_name, database) {
+    fs.writeFileSync(db_name, JSON.stringify(database, null, 2));
 };
 
 
@@ -207,8 +224,10 @@ function requestColourUpdate(socket_id, username, rgb, otc) {
         else {
             // check the one-time code to prevent spamming
             var expected_otc = db_OTC[username];
-            console.log(expected_otc + ' ' + otc);
-            if (expected_otc != otc) return false;
+            if (expected_otc != otc) {
+                log('WARNING', username + ' attempted an incorrect otc: ' + otc + ', expected ' + expected_otc);
+                return false;
+            }
             return true;
         }
     }
