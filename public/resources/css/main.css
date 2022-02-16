@@ -1,7 +1,12 @@
 /* button CSS taken from https://fdossena.com/?p=html5cool/buttons/i.frag */
 
 body {
-    background-color: #777;
+    background-color: black;
+}
+
+h1 {
+    font-family:sans-serif;
+    color: white;
 }
 
 #updatecolour {

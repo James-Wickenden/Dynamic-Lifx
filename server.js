@@ -66,9 +66,6 @@ function setup_express() {
     app.get('/db', (req, res) => {
         res.sendFile(path.join(__dirname, '/db.json'));
     });
-    app.get('/db_otc', (req, res) => {
-        res.sendFile(path.join(__dirname, '/db_OTC.json'));
-    });
 };
 
 
