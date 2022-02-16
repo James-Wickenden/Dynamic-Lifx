@@ -13,6 +13,7 @@ const path = require('path');
 const PORT = process.env.PORT || 5000;
 
 var db = {};
+var db_OTC = {};
 
 setup_socket_io();
 setup_express();
@@ -37,6 +38,7 @@ function create_if_not_exists(filename, content) {
 // ensure the database file exists, as well as a logging file
 function create_db_log() {
     create_if_not_exists('db.json', '{}');
+    create_if_not_exists('db_OTC.json', '{}');
     create_if_not_exists('out.log', new Date(Date.now()).toString() + '\n');
 };
 
@@ -63,6 +65,17 @@ function setup_express() {
     app.get('/db', (req, res) => {
         res.sendFile(path.join(__dirname, '/db.json'));
     });
+    app.get('/db_otc', (req, res) => {
+        res.sendFile(path.join(__dirname, '/db_OTC.json'));
+    });
+};
+
+
+// reset the one-time code in the database for that username
+// log it if the username isn't there.
+function reset_OTC(username) {
+    if (!db_OTC[username]) log('WARNING', username + ' not in OTC dict');
+    
 };
 
 
@@ -74,12 +87,13 @@ function setup_socket_io() {
         //});
         socket.on('colourChangeRequest', (data) => {
             log('INFO', 'request by ' + socket.id + ': ' + JSON.stringify(data));
-            var response = requestColourUpdate(socket.id, data['username'], data['rgb']);
+            var response = requestColourUpdate(socket.id, data['username'], data['rgb'], data['otc']);
             if (response) {
                 db[data['username']].push([ Date.now(),  new Date(Date.now()).toString(), socket.id, data['rgb'] ]);
                 rewrite_DB();
                 update_colour(data['rgb'], 1.0, 1.0);
             }
+            reset_OTC(data['username']);
             io.to(socket.id).emit('colourChangeResponse', response);
         });
     });
@@ -93,10 +107,10 @@ function readFile(filename) {
 };
 
 
-// Reload the JSON database from file into memory
-function reload_DB() {
-    var db_json = JSON.parse(readFile('db.json'));
-    db = db_json;
+// Reload a JSON database from file into memory
+function reload_DB(db_name) {
+    var db_json = JSON.parse(readFile(db_name));
+    return db_json;
 };
 
 
@@ -173,13 +187,15 @@ function update_colour(rgb_hex, brightness, duration) {
 
 
 // todo: rework logging, pull it out of a true/false returning function!
-function requestColourUpdate(socket_id, username, rgb) {
+function requestColourUpdate(socket_id, username, rgb, otc) {
     if (!username) return false;
-    reload_DB();
+    db = reload_DB('db.json');
+    db_OTC = reload_DB('db_OTC.json');
 
-    if (!db[username]) {
-        db[username] = [];
-        return true;
+    if (!db[username] || !db_OTC[username]) {
+        //db[username] = [];
+        //db_OTC[username] = 'undef';
+        return false;
     }
     else {
         var userlogs = db[username];
@@ -189,6 +205,10 @@ function requestColourUpdate(socket_id, username, rgb) {
             return false;
         }
         else {
+            // check the one-time code to prevent spamming
+            var expected_otc = db_OTC[username];
+            console.log(expected_otc + ' ' + otc);
+            if (expected_otc != otc) return false;
             return true;
         }
     }
